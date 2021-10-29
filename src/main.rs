@@ -9,6 +9,7 @@ use slog::{debug, error, o, Drain, Level, LevelFilter, Logger};
 use structopt::StructOpt;
 
 mod backup;
+mod check;
 mod config;
 mod forget;
 mod restic;
@@ -51,6 +52,16 @@ enum Command {
     Backup {
         /// The profile to back up
         profile: String,
+    },
+
+    /// Check repository for errors
+    Check {
+        /// The profile to check
+        profile: String,
+
+        /// Read all data blobs
+        #[structopt(long = "read-data")]
+        read_data: bool,
     },
 
     /// Forget snapshots according to the configured retention policy
@@ -133,6 +144,10 @@ fn run(args: Args, logger: &Logger) -> Result<()> {
         Command::Prune { profile } => {
             let restic = Restic::for_profile(&config, logger, profile)?;
             restic.prune()?;
+        }
+        Command::Check { profile, read_data } => {
+            let restic = Restic::for_profile(&config, logger, profile)?;
+            restic.check(read_data)?;
         }
         Command::Snapshots {
             profile,
