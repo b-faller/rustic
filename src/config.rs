@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
+use std::iter::FromIterator;
 use std::path::PathBuf;
 
 use serde::Deserialize;
@@ -19,7 +21,7 @@ pub struct Configuration {
     /// Root cache directory for repository metadata. Defaults to a system-specific cache location.
     /// Within this directory, restic creates a sub-directory for each repository.
     #[serde(default)]
-    pub cache_directory: Option<PathBuf>
+    pub cache_directory: Option<PathBuf>,
 }
 
 fn default_restic_command() -> String {
@@ -103,10 +105,29 @@ pub struct Fileset {
     pub patterns: Vec<String>,
 }
 
+/// Options that are valid to group by during forget command
+#[derive(PartialEq, Eq, Hash, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum GroupByOptions {
+    Host,
+    Paths,
+    Tags,
+}
+
+impl Display for GroupByOptions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GroupByOptions::Host => write!(f, "host"),
+            GroupByOptions::Paths => write!(f, "paths"),
+            GroupByOptions::Tags => write!(f, "tags"),
+        }
+    }
+}
+
 /// Describes how to keep/forget snapshots.
 ///
 /// See the [Restic documentation](https://restic.readthedocs.io/en/latest/060_forget.html#removing-snapshots-according-to-a-policy).
-#[derive(Deserialize, Default)]
+#[derive(Deserialize)]
 #[serde(default)]
 pub struct RetentionPolicy {
     /// Keep the `n` most recent snapshots
@@ -134,6 +155,25 @@ pub struct RetentionPolicy {
     /// Keep all snapshots with any of these tag lists. For example, if this is set to `[["tag1", "tag2"], ["tag3"]]`, Restic will keep snapshots
     /// that either have both `tag1` and `tag2` or have `tag3`.
     pub keep_tags: Vec<Vec<String>>, // TODO: restrict to tags + host
+
+    /// Group each retention policy per host, paths and tags.
+    pub group_by: HashSet<GroupByOptions>,
+}
+
+impl Default for RetentionPolicy {
+    fn default() -> Self {
+        Self {
+            keep_last: Default::default(),
+            keep_hourly: Default::default(),
+            keep_daily: Default::default(),
+            keep_weekly: Default::default(),
+            keep_monthly: Default::default(),
+            keep_yearly: Default::default(),
+            keep_within: Default::default(),
+            keep_tags: Default::default(),
+            group_by: HashSet::from_iter(vec![GroupByOptions::Host, GroupByOptions::Paths]),
+        }
+    }
 }
 
 impl RetentionPolicy {

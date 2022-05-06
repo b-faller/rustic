@@ -104,4 +104,6 @@ fn add_policy(policy: &RetentionPolicy, cmd: &mut Command) {
     for taglist in policy.keep_tags.iter() {
         cmd.arg("--keep-tag").arg(join(taglist, ","));
     }
+
+    cmd.arg("--group-by").arg(join(policy.group_by.iter(), ","));
 }
