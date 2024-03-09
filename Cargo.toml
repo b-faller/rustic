@@ -18,15 +18,15 @@ path = "src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
-human-panic = "1.0"
-itertools = "0.9"
-paw = "1.0"
+anyhow = "1"
+human-panic = "1"
+itertools = "0.12"
+paw = "1"
 serde = { version = "1.0", features = ["derive"] }
-structopt = { version = "0.3", features = ["paw"] }
 # Allow trace in release builds since it's controlled by a flag
-slog = { version = "2.5", features = ["max_level_trace", "release_max_level_trace"] }
-slog-term = "2.5"
-tabwriter = "1.2"
-toml = "0.5"
-tempfile = "3.1"
+slog = { version = "2", features = ["max_level_trace", "release_max_level_trace"] }
+slog-term = "2"
+structopt = { version = "0.3", features = ["paw"] }
+tabwriter = "1"
+tempfile = "3"
+toml = "0.8"

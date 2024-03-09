@@ -6,7 +6,6 @@ use std::process::{Command, Stdio};
 
 use anyhow::{bail, Context, Result};
 use slog::{debug, o, Logger};
-use toml;
 
 use crate::config::{Configuration, Profile};
 
